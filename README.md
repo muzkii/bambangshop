@@ -58,12 +58,12 @@ You can install Postman via this website: https://www.postman.com/downloads/
     -   [x] Commit: `Implement delete function in Subscriber repository.`
     -   [x] Write answers of your learning module's "Reflection Publisher-1" questions in this README.
 -   **STAGE 2: Implement services and controllers**
-    -   [ ] Commit: `Create Notification service struct skeleton.`
-    -   [ ] Commit: `Implement subscribe function in Notification service.`
-    -   [ ] Commit: `Implement subscribe function in Notification controller.`
-    -   [ ] Commit: `Implement unsubscribe function in Notification service.`
-    -   [ ] Commit: `Implement unsubscribe function in Notification controller.`
-    -   [ ] Write answers of your learning module's "Reflection Publisher-2" questions in this README.
+    -   [x] Commit: `Create Notification service struct skeleton.`
+    -   [x] Commit: `Implement subscribe function in Notification service.`
+    -   [x] Commit: `Implement subscribe function in Notification controller.`
+    -   [x] Commit: `Implement unsubscribe function in Notification service.`
+    -   [x] Commit: `Implement unsubscribe function in Notification controller.`
+    -   [x] Write answers of your learning module's "Reflection Publisher-2" questions in this README.
 -   **STAGE 3: Implement notification mechanism**
     -   [ ] Commit: `Implement update method in Subscriber model to send notification HTTP requests.`
     -   [ ] Commit: `Implement notify function in Notification service to notify each Subscriber.`
@@ -124,6 +124,66 @@ This is the place for you to write reflections:
     -   Since `DashMap` provides both singleton behavior and thread safety, it is the best choice
 
     In conclusion, `DashMap` should be kept instead of replacing it with just a Singleton.
+
 #### Reflection Publisher-2
+
+1. **Why do we need to separate “Service” and “Repository” from the Model?**
+
+    In MVC, the Model handles both business logic and data access, but there are some best practices advocate that people usually do for separating these concerns
+
+    a. Separation of Concerns (SoC):
+    -   Repository: Handles database access, queries, and persistence
+    -   Service: Contains business logic and orchestrates operations
+    -   Model: Represents data structure but doesn't handle business logic or database interactions
+    b. Scalability & Maintainability:
+    -   If we mix business logic and data access in the Model, it becomes difficult to refactor, test or extend.
+    -   A dedicated Service layer allows adding additional business rules without modifying the database logic.
+    -   A Repository layer abstracts database implementation, making it easier to switch databases (e.g., from PostgreSQL to MongoDB).
+    c. Testability:
+    -   The service layer can be unit tested without needing an actual database.
+    -   The repository can be mocked for testing, aviding database dependencies in tests.
+
+    In **BambangShop**, the introduction of `NotificationService` and `SubscriberRepositor` follows modern layered architecture, ensuring the system is modular and maintanable.
+
+2. **What happens if we only use the Model?**
+
+    If we don't separate the **Service** and **Repository** layers, the **Model** would handle both business logic and database operations. They could get intertwined, leading to tightly coupled code that is harder to maintain, test, extend, or even reuse. Other things that could happen are but not limited to:
+    
+    a. Tightly Coupled Components:
+    -   The `Notification`, `Subscriber`, and `Program` models would need to directly interact with the database
+    -   Any change in business logic would require modifying the Model itself, making the code harder to manage
+    b. Complex Interactions Between Models:
+    -   `Notification` needs to be sent when a `Subscriber` subscribes/unsubscribes.
+    -   Without a Service layer, `Notification` would have to directly interact with the `Subcriber` model, increasing dependencies. This would also make code harder to refactor and debug'
+    c. Difficult to Extend Features
+    -   If we want to add let's say logging, validation, we would ahve to modify the Model, this could lead to violations of the Single Responsibility Principle (SRP) that we have learned beforehand.
+
+    Thus, without a Service and Repository layer, the codebase becomes more complex, harder to maintain, and less scalable. 
+
+3. **How does Postman help in testing our current work?**
+
+    Postman in a tool for testing APIs. In BambangShop, it could help us on:
+    
+    **Testing API Endpoints**
+    
+    - We can send `POST` requests to:
+        -   **Subscribe:** `/subscribe/<product_type>`
+        -   **Unsubscribe:** `/unsubscribe/<product_type>?<url>`
+    - Checks if responses match expectations (e.g, check whether the HTTP status and JSON payloads is correct or not)
+
+    **Useful Features in Postman**
+    
+    - Collections & Environments:
+        -   We can group API requests into collections, just like what we did on this Tutorial
+        -   Define variables to switch between local development and production environments
+
+    - Automated Testing (Tests Tab):
+        -   Write scritps to validate API responses automatically
+    
+    - Mock Servers:
+        -   Simulate API responses to test frontend behavior without requiring a backend
+    
+    - API Documentation:
+        -   Postman can generate interactive API documentation, making it easier for team members to understand endpoints.
 
 #### Reflection Publisher-3
