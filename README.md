@@ -48,15 +48,15 @@ You can install Postman via this website: https://www.postman.com/downloads/
     (You might want to use `cargo check` if you only need to verify your work without running the app.)
 
 ## Mandatory Checklists (Publisher)
--   [ ] Clone https://gitlab.com/ichlaffterlalu/bambangshop to a new repository.
+-   [x] Clone https://gitlab.com/ichlaffterlalu/bambangshop to a new repository.
 -   **STAGE 1: Implement models and repositories**
-    -   [✓] Commit: `Create Subscriber model struct.`
-    -   [✓] Commit: `Create Notification model struct.`
-    -   [✓] Commit: `Create Subscriber database and Subscriber repository struct skeleton.`
-    -   [✓] Commit: `Implement add function in Subscriber repository.`
-    -   [✓] Commit: `Implement list_all function in Subscriber repository.`
-    -   [✓] Commit: `Implement delete function in Subscriber repository.`
-    -   [✓] Write answers of your learning module's "Reflection Publisher-1" questions in this README.
+    -   [x] Commit: `Create Subscriber model struct.`
+    -   [x] Commit: `Create Notification model struct.`
+    -   [x] Commit: `Create Subscriber database and Subscriber repository struct skeleton.`
+    -   [x] Commit: `Implement add function in Subscriber repository.`
+    -   [x] Commit: `Implement list_all function in Subscriber repository.`
+    -   [x] Commit: `Implement delete function in Subscriber repository.`
+    -   [x] Write answers of your learning module's "Reflection Publisher-1" questions in this README.
 -   **STAGE 2: Implement services and controllers**
     -   [ ] Commit: `Create Notification service struct skeleton.`
     -   [ ] Commit: `Implement subscribe function in Notification service.`
@@ -78,19 +78,52 @@ This is the place for you to write reflections:
 
 #### Reflection Publisher-1
 
-1. Do we need an interface (or trait in Rust) in BambangShop, or is a single Model struct enough?
+1. **Do we need an interface (or trait in Rust) in BambangShop, or is a single Model struct enough?**
 
-In the Observer pattern, an interface (or trait in Rust) defines a contract that all subscribers must follow, ensuring that different implementations can coexist. In Rust, traits allow polymorphic behavior and ensure that all observers implement necessary methods, such as `update` on the example that I have recently added for Publisher-1.
+    In the Observer pattern, an interface (or trait in Rust) defines a contract that all subscribers must follow, ensuring that different implementations can coexist. In Rust, traits allow polymorphic behavior and ensure that all observers implement necessary methods, such as `update` on the example that I have recently added for Publisher-1.
 
-Now, in the **BambangShop case**, we currently use a `Subscriber` struct without a trait. This is acceptable if we assume that all subscribers have the same structure and behavior. However, if we later introduce different types of subscribers (e.g., email subscribers, webhook subscribers), a trait would be beneficial to define a shared behavior, such as:
+    Now, in the **BambangShop case**, we currently use a `Subscriber` struct without a trait. This is acceptable if we assume that all subscribers have the same structure and behavior. However, if we later introduce different types of subscribers (e.g., email subscribers, webhook subscribers), a trait would be beneficial to define a shared behavior, such as:
 
-```Rust
-trait Subscriber {
-    fn notify(&self, notification: &Notification);
-}
-```
-Currently, since we have only one `Subscriber` struct, a trait is not strictly necessary, but it would improve flexibility, maybe throughout the tutorial, we will se it being used.
+    ```Rust
+    trait Subscriber {
+        fn notify(&self, notification: &Notification);
+    }
+    ```
 
+    Currently, since we have only one `Subscriber` struct, a trait is not strictly necessary, but it would improve flexibility, maybe throughout the tutorial, we will se it being used.
+
+2. **Is using Vec (list) sufficient, or is DashMap necessary?**
+
+    In my own opinion, since the `id` in **Program** and `url` in **Subscriber** must be unique, meaning a key-value like storage (hashmap/dictionary) structure is ideal.
+
+    a. Using `Vec<Subscriber>` has its own cons like:
+    -   Searching for a subscriber by `url` requires O(n) time complexity (sorry I did this after DAA)
+    -   Removing a subscriber also requires iteration
+    -   If the number of subscribers too much, it can be inefficient
+
+    b. Instead, if we use `DashMap<String, Subscriber>` (Map/Dictionary) can be beneficial because:
+    -   Allows constant time (O(1)) for lookups, insertions, and deletions by using the `url` as the key.
+    -   By the property of dictionary, a key must be unique, so this makes our `url` unique
+
+    Since we need efficient lookups, `DashMap` is the better choice for managing subscribers.
+
+3. **Do we need DashMap, or can we implement Singleton instead?**
+
+    The Singleton pattern ensures a single global instance, which we already achieve with `lazy_static!`:
+
+    ```Rust
+    lazy_static! {
+    pub static ref SUBSCRIBERS: DashMap<String, Subscriber> = DashMap::new();
+    }
+    ```
+
+    However, Singleton alone does not ensure thread safety. `DashMap` in Rust is specifically designed for concurrent access, avoiding data races without requiring manual locking.
+
+    -   IF we remove `DashMap` and use Singleton with `HashMap`, we would ened to wrap it in a `Mutex` or `RwLock`, as a locking overhead
+
+    -   Since `DashMap` provides both singleton behavior and thread safety, it is the best choice
+
+    In conclusion, `DashMap` should be kept instead of replacing it with just a Singleton.
 #### Reflection Publisher-2
 
 #### Reflection Publisher-3
