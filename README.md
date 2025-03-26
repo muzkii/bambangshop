@@ -50,13 +50,13 @@ You can install Postman via this website: https://www.postman.com/downloads/
 ## Mandatory Checklists (Publisher)
 -   [ ] Clone https://gitlab.com/ichlaffterlalu/bambangshop to a new repository.
 -   **STAGE 1: Implement models and repositories**
-    -   [ ] Commit: `Create Subscriber model struct.`
-    -   [ ] Commit: `Create Notification model struct.`
-    -   [ ] Commit: `Create Subscriber database and Subscriber repository struct skeleton.`
-    -   [ ] Commit: `Implement add function in Subscriber repository.`
-    -   [ ] Commit: `Implement list_all function in Subscriber repository.`
-    -   [ ] Commit: `Implement delete function in Subscriber repository.`
-    -   [ ] Write answers of your learning module's "Reflection Publisher-1" questions in this README.
+    -   [✓] Commit: `Create Subscriber model struct.`
+    -   [✓] Commit: `Create Notification model struct.`
+    -   [✓] Commit: `Create Subscriber database and Subscriber repository struct skeleton.`
+    -   [✓] Commit: `Implement add function in Subscriber repository.`
+    -   [✓] Commit: `Implement list_all function in Subscriber repository.`
+    -   [✓] Commit: `Implement delete function in Subscriber repository.`
+    -   [✓] Write answers of your learning module's "Reflection Publisher-1" questions in this README.
 -   **STAGE 2: Implement services and controllers**
     -   [ ] Commit: `Create Notification service struct skeleton.`
     -   [ ] Commit: `Implement subscribe function in Notification service.`
@@ -77,6 +77,19 @@ This is the place for you to write reflections:
 ### Mandatory (Publisher) Reflections
 
 #### Reflection Publisher-1
+
+1. Do we need an interface (or trait in Rust) in BambangShop, or is a single Model struct enough?
+
+In the Observer pattern, an interface (or trait in Rust) defines a contract that all subscribers must follow, ensuring that different implementations can coexist. In Rust, traits allow polymorphic behavior and ensure that all observers implement necessary methods, such as `update` on the example that I have recently added for Publisher-1.
+
+Now, in the **BambangShop case**, we currently use a `Subscriber` struct without a trait. This is acceptable if we assume that all subscribers have the same structure and behavior. However, if we later introduce different types of subscribers (e.g., email subscribers, webhook subscribers), a trait would be beneficial to define a shared behavior, such as:
+
+```Rust
+trait Subscriber {
+    fn notify(&self, notification: &Notification);
+}
+```
+Currently, since we have only one `Subscriber` struct, a trait is not strictly necessary, but it would improve flexibility, maybe throughout the tutorial, we will se it being used.
 
 #### Reflection Publisher-2
 
