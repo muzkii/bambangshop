@@ -135,10 +135,12 @@ This is the place for you to write reflections:
     -   Repository: Handles database access, queries, and persistence
     -   Service: Contains business logic and orchestrates operations
     -   Model: Represents data structure but doesn't handle business logic or database interactions
+
     b. Scalability & Maintainability:
     -   If we mix business logic and data access in the Model, it becomes difficult to refactor, test or extend.
     -   A dedicated Service layer allows adding additional business rules without modifying the database logic.
     -   A Repository layer abstracts database implementation, making it easier to switch databases (e.g., from PostgreSQL to MongoDB).
+    
     c. Testability:
     -   The service layer can be unit tested without needing an actual database.
     -   The repository can be mocked for testing, aviding database dependencies in tests.
@@ -152,9 +154,11 @@ This is the place for you to write reflections:
     a. Tightly Coupled Components:
     -   The `Notification`, `Subscriber`, and `Program` models would need to directly interact with the database
     -   Any change in business logic would require modifying the Model itself, making the code harder to manage
+    
     b. Complex Interactions Between Models:
     -   `Notification` needs to be sent when a `Subscriber` subscribes/unsubscribes.
     -   Without a Service layer, `Notification` would have to directly interact with the `Subcriber` model, increasing dependencies. This would also make code harder to refactor and debug'
+    
     c. Difficult to Extend Features
     -   If we want to add let's say logging, validation, we would ahve to modify the Model, this could lead to violations of the Single Responsibility Principle (SRP) that we have learned beforehand.
 
