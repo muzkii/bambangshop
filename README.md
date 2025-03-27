@@ -65,11 +65,11 @@ You can install Postman via this website: https://www.postman.com/downloads/
     -   [x] Commit: `Implement unsubscribe function in Notification controller.`
     -   [x] Write answers of your learning module's "Reflection Publisher-2" questions in this README.
 -   **STAGE 3: Implement notification mechanism**
-    -   [ ] Commit: `Implement update method in Subscriber model to send notification HTTP requests.`
-    -   [ ] Commit: `Implement notify function in Notification service to notify each Subscriber.`
-    -   [ ] Commit: `Implement publish function in Program service and Program controller.`
-    -   [ ] Commit: `Edit Product service methods to call notify after create/delete.`
-    -   [ ] Write answers of your learning module's "Reflection Publisher-3" questions in this README.
+    -   [x] Commit: `Implement update method in Subscriber model to send notification HTTP requests.`
+    -   [x] Commit: `Implement notify function in Notification service to notify each Subscriber.`
+    -   [x] Commit: `Implement publish function in Program service and Program controller.`
+    -   [x] Commit: `Edit Product service methods to call notify after create/delete.`
+    -   [x] Write answers of your learning module's "Reflection Publisher-3" questions in this README.
 
 ## Your Reflections
 This is the place for you to write reflections:
@@ -191,3 +191,74 @@ This is the place for you to write reflections:
         -   Postman can generate interactive API documentation, making it easier for team members to understand endpoints.
 
 #### Reflection Publisher-3
+
+1. **Which variation of the Observer Pattern do we use in this case?**
+
+    In our BambangShop implementation, as you can see, it uses Push model of the Observer pattern
+
+    - The The Publisher (NotificationService) actively pushes notifications to Subscribers.
+    - When a product is created, deleted, or promoted, the `notify` method sends notifications to all subscribers.
+    - The `Subscriber::update` method sends an HTTP request (`POST`) to the subscriber's URL asynchronously.
+
+    This aligns with the Push model, where the publisher decides when to notify subscribers and sends the data directly.
+
+2. **What if we used the Pull model instead?**
+
+    Let's say, if we switched to a Pull model, subscribers would have to request (pull) notifications from the publisher instead of receiving them automatically. Here are some advantages and disadvantages:
+
+    **Advantages of Pull Model**
+
+    1. Less Load on Publisher
+
+        -   The publisher doesn’t need to notify all subscribers actively.
+        -   Subscribers request updates only when needed, reducing unnecessary notifications.
+
+    2. **Better Handling of Subscriber Failures**
+
+        -   If a subscriber is offline, they won’t miss notifications since they can pull updates later.
+        -   In the Push model, the publisher sends data immediately, which could fail if a subscriber is unavailable.
+
+    3. **More Control for Subscribers**
+
+        -   Subscribers decide when they want to fetch data.
+        -   If we keep it that way, this can be useful for reducing unnecesarry updates if they don't need to change the data in real-time.
+
+    
+    **Disadvantages of Pull Model (for our case)**
+
+    1. Increased Subscriber Complexity
+
+        -   Subscribers must periodically request updates, adding overhead.
+        -   This requires a mechanism to track whether new updates exist.
+
+    2. Delayed Notifications
+
+        -   Since subscribers request updates on a schedule (e.g., every 10 minutes), they may not get real-time updates.
+        -   In our use case, real-time notifications are crucial (e.g., for product promotions).
+
+    3. Higher Resource Consumption on Subscribers
+
+        -   If many subscribers frequently poll the publisher, it may cause unnecessary load on the system.
+
+    In conclusion, for BambangShop, the Push model is better because we need real-time notifications for product events. The Pull model would introduce delays and unnecessary polling overhead.
+
+3. **What happens if we don’t use multi-threading in the notification process?**
+
+    Currently, we use multi-threading (`thread::spawn`) in `NotificationService::notify` to send notifications asynchronously. This allows multiple subscribers to be notified simultaneously. Let's say that we remove multi-threading, here's what gonna happen:
+
+    a. Slower Notification Processing
+
+    -   Notifications would be sent one by one, blocking execution.
+    -   If we have 100+ subscribers, sending updates could take several seconds or minutes.
+
+    b. Increased API Latency
+
+    -   The `create`, `delete`, and `publish` endpoints in `ProductService` would take longer to respond.
+    -   A single API call (e.g., creating a product) would wait until all notifications are sent before returning a response.
+
+    c. Higher Risk of Failures
+
+    -   If one notification request fails or times out, it would block all subsequent notifications.
+    -   With multi-threading, failures don’t block other subscribers from receiving updates.
+
+    So, without multi-threading, the system would become much slower, less scalable, and more prone to failures. Using `thread::spawn` ensures notifications are sent efficiently.
